@@ -90,7 +90,7 @@ export default class CountryPicker extends Component {
     countryList: cca2List,
     hideCountryFlag: false,
     excludeCountries: [],
-    filterPlaceholder: 'Filter',
+    filterPlaceholder: 'Search',
     autoFocusFilter: true,
     transparent: false,
     animationType: 'none'
