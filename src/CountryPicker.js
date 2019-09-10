@@ -125,16 +125,16 @@ export default class CountryPicker extends Component {
     )
   }
 
-  static renderFlagWithName(cca2,countryName, itemStyle, emojiStyle, imageStyle) {
+  static renderFlagWithName(cca2, countryName, itemStyle, emojiStyle, imageStyle) {
     return (
-      <View style={{flexDirection:'row', flexWrap:'wrap',alignItems: "center",}}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: "center", }}>
         <View style={[countryPickerStyles.itemCountryFlag, itemStyle]}>
           {isEmojiable
             ? CountryPicker.renderEmojiFlag(cca2, emojiStyle)
             : CountryPicker.renderImageFlag(cca2, imageStyle)}
 
         </View>
-        <Text style={{marginLeft:15,fontSize:16}}>{countryName}</Text>
+        <Text style={{ marginLeft: 15, fontSize: 16 }}>{countryName}</Text>
       </View>
     )
   }
@@ -224,6 +224,15 @@ export default class CountryPicker extends Component {
       dataSource: this.state.cca2List
     })
 
+    const filteredCountries = this.state.cca2List
+    this._flatList.scrollToOffset({ offset: 0 });
+
+    this.setState({
+      filter: '',
+      dataSource: filteredCountries,
+      flatListMap: filteredCountries.map(n => ({ key: n }))
+    })
+
     this.props.onChange({
       cca2,
       ...countries[cca2],
@@ -233,6 +242,17 @@ export default class CountryPicker extends Component {
   }
 
   onClose = () => {
+
+
+    const filteredCountries = this.state.cca2List
+    this._flatList.scrollToOffset({ offset: 0 });
+
+    this.setState({
+      filter: '',
+      dataSource: filteredCountries,
+      flatListMap: filteredCountries.map(n => ({ key: n }))
+    })
+
     this.setState({
       modalVisible: false,
       filter: '',
@@ -298,8 +318,22 @@ export default class CountryPicker extends Component {
   }
 
   handleFilterChange = value => {
-    const filteredCountries =
-      value === '' ? this.state.cca2List : this.fuse.search(value)
+    //  Original Code for filter
+    //  const filteredCountrie =
+    //  value === '' ? this.state.cca2List : this.fuse.search(value)
+
+    // Custom logic By Rajan Shah
+    const tempCountries = getAllCountries();
+    const tmpFilteredCountries = tempCountries.filter(country => {
+      const translation = this.props.translation || 'eng'
+      const name = country.name[translation] || country.name.common;
+      if (name.includes(value)) {
+        return country.cca2;
+      }
+    })
+    const filteredCountries = tmpFilteredCountries.map(country => {
+      return country.cca2;
+    });
     this._flatList.scrollToOffset({ offset: 0 });
 
     this.setState({
@@ -340,21 +374,21 @@ export default class CountryPicker extends Component {
   renderCountryDetail(cca2) {
     const country = countries[cca2]
     return (
-      <View style={styles.itemCountry}>
+      <View style={styles.itemCountry} >
         {!this.props.hideCountryFlag && CountryPicker.renderFlag(cca2)}
         <View style={styles.itemCountryName}>
-          <Text style={styles.countryName} allowFontScaling>
+          <Text style={styles.countryName} allowFontScaling >
             {this.getCountryName(country)}
           </Text>
           {this.props.showCallingCode &&
-          country.callingCode &&
-          <Text style={styles.countryCode}>{`+${country.callingCode}`}</Text>}
+            country.callingCode &&
+            <Text style={styles.countryCode}>{`+${country.callingCode}`}</Text>}
         </View>
       </View>
     )
   }
 
-  
+
 
   renderFilter = () => {
     const {
@@ -371,16 +405,16 @@ export default class CountryPicker extends Component {
     return renderFilter ? (
       renderFilter({ value, onChange, onClose })
     ) : (
-      <TextInput
-        autoFocus={autoFocusFilter}
-        autoCorrect={false}
-        placeholder={filterPlaceholder}
-        placeholderTextColor={filterPlaceholderTextColor}
-        style={[styles.input, !this.props.closeable && styles.inputOnly]}
-        onChangeText={onChange}
-        value={value}
-      />
-    )
+        <TextInput
+          autoFocus={autoFocusFilter}
+          autoCorrect={false}
+          placeholder={filterPlaceholder}
+          placeholderTextColor={filterPlaceholderTextColor}
+          style={[styles.input, !this.props.closeable && styles.inputOnly]}
+          onChangeText={onChange}
+          value={value}
+        />
+      )
   }
 
   render() {
@@ -417,6 +451,7 @@ export default class CountryPicker extends Component {
             <KeyboardAvoidingView behavior="padding">
               <View style={styles.contentContainer}>
                 <FlatList
+                  keyboardShouldPersistTaps='handled'
                   data={this.state.flatListMap}
                   ref={flatList => (this._flatList = flatList)}
                   initialNumToRender={30}
