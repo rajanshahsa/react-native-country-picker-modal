@@ -142,6 +142,7 @@ export default class CountryPicker extends Component {
   constructor(props) {
     super(props)
     this.openModal = this.openModal.bind(this)
+    this.filterCountry = this.filterCountry.bind(this)
 
     setCountries(props.flagType)
     let countryList = [...props.countryList]
@@ -224,15 +225,6 @@ export default class CountryPicker extends Component {
       dataSource: this.state.cca2List
     })
 
-    const filteredCountries = this.state.cca2List
-    this._flatList.scrollToOffset({ offset: 0 });
-
-    this.setState({
-      filter: '',
-      dataSource: filteredCountries,
-      flatListMap: filteredCountries.map(n => ({ key: n }))
-    })
-
     this.props.onChange({
       cca2,
       ...countries[cca2],
@@ -242,17 +234,6 @@ export default class CountryPicker extends Component {
   }
 
   onClose = () => {
-
-
-    const filteredCountries = this.state.cca2List
-    this._flatList.scrollToOffset({ offset: 0 });
-
-    this.setState({
-      filter: '',
-      dataSource: filteredCountries,
-      flatListMap: filteredCountries.map(n => ({ key: n }))
-    })
-
     this.setState({
       modalVisible: false,
       filter: '',
@@ -289,6 +270,7 @@ export default class CountryPicker extends Component {
     ).sort()
   }
 
+  filterCountry = this.filterCountry.bind(this)
   openModal = this.openModal.bind(this)
 
   // dimensions of country list and window
@@ -297,6 +279,18 @@ export default class CountryPicker extends Component {
 
   openModal() {
     this.setState({ modalVisible: true })
+  }
+
+  filterCountry(value) {
+    const tempCountries = getAllCountries();
+    const tmpFilteredCountries = tempCountries.filter(country => {
+      const translation = this.props.translation || 'eng'
+      const name = country.name[translation] || country.name.common;
+      if (name.includes(value)) {
+        return name;
+      }
+    })
+    return tmpFilteredCountries
   }
 
   scrollTo(letter) {
@@ -317,6 +311,8 @@ export default class CountryPicker extends Component {
     this._flatList.scrollToIndex({ index });
   }
 
+
+
   handleFilterChange = value => {
     //  Original Code for filter
     //  const filteredCountrie =
@@ -331,7 +327,7 @@ export default class CountryPicker extends Component {
         return country.cca2;
       }
     })
-    const filteredCountries = tmpFilteredCountries.map(country => {
+    const filteredCountries = filteredCountries.map(country => {
       return country.cca2;
     });
     this._flatList.scrollToOffset({ offset: 0 });
@@ -374,10 +370,10 @@ export default class CountryPicker extends Component {
   renderCountryDetail(cca2) {
     const country = countries[cca2]
     return (
-      <View style={styles.itemCountry} >
+      <View style={styles.itemCountry}>
         {!this.props.hideCountryFlag && CountryPicker.renderFlag(cca2)}
         <View style={styles.itemCountryName}>
-          <Text style={styles.countryName} allowFontScaling >
+          <Text style={styles.countryName} allowFontScaling>
             {this.getCountryName(country)}
           </Text>
           {this.props.showCallingCode &&
@@ -451,7 +447,6 @@ export default class CountryPicker extends Component {
             <KeyboardAvoidingView behavior="padding">
               <View style={styles.contentContainer}>
                 <FlatList
-                  keyboardShouldPersistTaps='handled'
                   data={this.state.flatListMap}
                   ref={flatList => (this._flatList = flatList)}
                   initialNumToRender={30}
