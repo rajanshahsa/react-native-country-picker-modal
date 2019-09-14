@@ -286,7 +286,7 @@ export default class CountryPicker extends Component {
     const tmpFilteredCountries = tempCountries.filter(country => {
       const translation = this.props.translation || 'eng'
       const name = country.name[translation] || country.name.common;
-      if (name.includes(value)) {
+      if (name.toLowerCase().includes(value.toLowerCase())) {
         return name;
       }
     })
@@ -323,19 +323,16 @@ export default class CountryPicker extends Component {
     const tmpFilteredCountries = tempCountries.filter(country => {
       const translation = this.props.translation || 'eng'
       const name = country.name[translation] || country.name.common;
-      if (name.includes(value)) {
+      if (name.toLowerCase().includes(value.toLowerCase())) {
         return country.cca2;
       }
     })
-    const filteredCountries = filteredCountries.map(country => {
-      return country.cca2;
-    });
     this._flatList.scrollToOffset({ offset: 0 });
 
     this.setState({
       filter: value,
-      dataSource: filteredCountries,
-      flatListMap: filteredCountries.map(n => ({ key: n }))
+      dataSource: tmpFilteredCountries,
+      flatListMap: tmpFilteredCountries.map(n => ({ key: n }))
     })
   }
 
