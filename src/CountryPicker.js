@@ -225,6 +225,15 @@ export default class CountryPicker extends Component {
       dataSource: this.state.cca2List
     })
 
+    const filteredCountries = this.state.cca2List
+    this._flatList.scrollToOffset({ offset: 0 });
+
+    this.setState({
+      filter: '',
+      dataSource: filteredCountries,
+      flatListMap: filteredCountries.map(n => ({ key: n }))
+    })
+
     this.props.onChange({
       cca2,
       ...countries[cca2],
@@ -234,6 +243,15 @@ export default class CountryPicker extends Component {
   }
 
   onClose = () => {
+    const filteredCountries = this.state.cca2List
+    this._flatList.scrollToOffset({ offset: 0 });
+
+    this.setState({
+      filter: '',
+      dataSource: filteredCountries,
+      flatListMap: filteredCountries.map(n => ({ key: n }))
+    })
+
     this.setState({
       modalVisible: false,
       filter: '',
